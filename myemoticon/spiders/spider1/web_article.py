@@ -45,6 +45,7 @@ class WebArticle:
     def save(self, update=False):
         if Article.objects.filter(old_id=self.old_id).exists():
             if not update:
+                print('article exists, skip')
                 return False
 
         data = self.data()
@@ -60,7 +61,13 @@ class WebArticle:
         soup = self.soup()
         photo_ids = []
         for i in soup.select('div.artile_des > table > tbody > tr > td > a'):
-            photo_ids.append(i['href'].split('/')[-1])
+            photo_id = i['href'].split('/')[-1]
+            print('found photo id: ', photo_id)
+            try:
+                int(photo_id)  # article 4344065, 2596033 contains invalid photo
+                photo_ids.append(photo_id)
+            except (ValueError, TypeError):
+                continue
         return photo_ids
 
 

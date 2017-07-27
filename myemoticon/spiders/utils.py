@@ -93,6 +93,8 @@ def get_soup_from_url(url, add_host_url=True):
         time.sleep(40)
         wb_data = requests.get(url, headers=get_headers())
     wb_data.encoding = 'utf8'
+    if wb_data.status_code == 404:
+        return None
     soup = BeautifulSoup(wb_data.text, 'html5lib')
     return soup
 

@@ -24,6 +24,9 @@ class WebPhoto:
             return self._data
 
         soup = self.soup()
+        if soup is None:
+            return None
+
         _pic_soup = soup.select("div.col-xs-12.col-sm-6.artile_des > table > tbody > tr > td > img")[0]
         title = _pic_soup['alt']
         date = datetime.strptime(
@@ -50,9 +53,13 @@ class WebPhoto:
     def save(self, update=False):
         if Photo.objects.filter(old_id=self.old_id).exists():
             if not update:
+                print('photo exists, skip')
                 return False
 
         data = self.data()
+        if data is None:
+            return False
+
         if data['article']:
             article = Article.objects.get(old_id=data['article'])
             print('fk found', article)
@@ -73,6 +80,8 @@ class WebArticleTestCase(unittest.TestCase):
     def setUp(self):
         self.web_photo = WebPhoto('8364925', article_old_id='1022586')
         # self.web_photo = WebPhoto('1052921')
+        self.web_photo = WebPhoto('4381981')
+        self.web_photo = WebPhoto('9443045')
 
     def test_data(self):
         print(self.web_photo.data())

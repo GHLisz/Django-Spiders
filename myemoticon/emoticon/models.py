@@ -1,6 +1,5 @@
 from django.db import models
 from taggit.managers import TaggableManager
-from .cn_taggit import CnTaggedItem
 
 
 # Create your models here.
@@ -10,7 +9,7 @@ class Article(models.Model):
     date = models.DateField()
     author = models.CharField(max_length=256)
 
-    tags = TaggableManager(through=CnTaggedItem)
+    tags = TaggableManager()
 
     def __str__(self):
         return 'Article id: {}, title: {}'.format(self.old_id, self.title)
@@ -25,7 +24,7 @@ class Photo(models.Model):
     bk_url = models.URLField()
     cached = models.BooleanField(default=False)
 
-    tags = TaggableManager(through=CnTaggedItem)
+    tags = TaggableManager()
 
     def __str__(self):
         return 'Photo id: {}, title: {}'.format(self.old_id, self.title)
