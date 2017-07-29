@@ -15,6 +15,13 @@ def save_web_pic_to(pic_url, pic_path):
     try:
         urllib.request.urlretrieve(pic_url, pic_path)
         return True
+    except urllib.error.HTTPError as err:
+        if err.code in [403, 404, 503, 504]:
+            print(sys.exc_info())
+        else:
+            sleep(120)
+            print(sys.exc_info())
+            return False
     except:
         sleep(120)
         print(sys.exc_info())

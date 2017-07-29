@@ -1,6 +1,7 @@
 from .web_photo import WebPhoto
 from .web_article import WebArticle
 from spiders.utils import get_soup_from_url
+from spiders.spider1.down_pic import save_pic_job_multi
 
 
 def get_article_ids_in_page(page_num):
@@ -94,3 +95,15 @@ def update_standalone_photos_incremental():
         if at_least_one_photo_in_db:
             print('This page contains cached photos, skip the rest pages')
             break
+
+
+def down_all():
+    update_articles()
+    update_standalone_photos()
+    save_pic_job_multi()
+
+
+def down_all_incremental():
+    update_articles_incremental()
+    update_standalone_photos_incremental()
+    save_pic_job_multi()
