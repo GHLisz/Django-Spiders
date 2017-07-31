@@ -1,10 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Standalone photos{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 col-sm-6">
+                <div class="gallery-item">
+                        <img src="images/gallery/gallery-item1.jpg" alt="image 1">
+                    <div class="content-gallery">
+                        <h3>Etiam sed felis</h3>
+                    </div>
+                </div> <!-- /.gallery-item -->
+            </div> <!-- /.col-md-2 -->
+        </div> <!-- /.row -->
+    </div> <!-- /.slide-item -->
+{% endblock %}
