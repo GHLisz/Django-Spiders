@@ -11,6 +11,17 @@ class Article(models.Model):
 
     tags = TaggableManager()
 
+    @property
+    def first_4_photo(self):
+        val = []
+        photos = Photo.objects.filter(article=self)
+        bk_urls = [i.bk_url for i in photos[:4]]
+        for bk_url in bk_urls:
+            bk_full_url = bk_url if bk_url.startswith('http:') else 'http:' + bk_url
+            pic_partial_path = '/' + '/'.join(bk_full_url.replace('http://', '').split('/')[1:])
+            val.append(pic_partial_path)
+        return val
+
     def __str__(self):
         return 'Article id: {}, title: {}'.format(self.old_id, self.title)
 
