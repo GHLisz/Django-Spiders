@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}My Blog{% endblock %}
+{% load paginate_tag %}
 
+{% block title %}My Blog{% endblock %}
 
 {% block content %}
 <div class="container col-sm-12">
@@ -19,4 +20,5 @@
     </div><!--container-->
     {% endfor %}
 </div><!--container-->
+    {% paginate %}
 {% endblock %}
