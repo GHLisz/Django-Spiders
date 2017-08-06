@@ -39,3 +39,9 @@ class Photo(models.Model):
 
     def __str__(self):
         return 'Photo id: {}, title: {}'.format(self.old_id, self.title)
+
+    @property
+    def url(self):
+        bk_full_url = self.bk_url if self.bk_url.startswith('http:') else 'http:' + self.bk_url
+        pic_partial_path = '/' + '/'.join(bk_full_url.replace('http://', '').split('/')[1:])
+        return pic_partial_path

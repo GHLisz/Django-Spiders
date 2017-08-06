@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Standalone photos{% endblock %}
+{% load paginate_tag %}
+
+{% block title %}表情 - 第{{ page_obj.number }}页{% endblock %}
 
 {% block content %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-2 col-sm-6">
-                <div class="gallery-item">
-                        <img src="images/gallery/gallery-item1.jpg" alt="image 1">
-                    <div class="content-gallery">
-                        <h3>Etiam sed felis</h3>
-                    </div>
-                </div> <!-- /.gallery-item -->
-            </div> <!-- /.col-md-2 -->
-        </div> <!-- /.row -->
-    </div> <!-- /.slide-item -->
+    <div class="container col-sm-6 col-lg-offset-3 list-group-item">
+        {% for photo in standalone_photos %}
+        <div class="col-xs-6 col-sm-3" style="height: 200px; width: 200px">
+            <a href="#">
+                <img class="img-responsive" src="http://10.20.136.163/emoticon{{ photo.url }}">
+            </a>
+        </div>
+        {% endfor %}
+    </div><!--container-->
+    {% paginate %}
 {% endblock %}

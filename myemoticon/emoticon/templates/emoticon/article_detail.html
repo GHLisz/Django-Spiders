@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block content %}
+<div class="container col-sm-12">
+    <div class="container col-sm-6 col-lg-offset-3 list-group-item">
+        <div class="col-sm-12 header-bar" style="font-size: large">{{ article.title }}</div>
+        <div class="col-sm-12 header-bar" style="font-size: large">{{ article.date }}</div>
+        {% for photo in photos %}
+        <div class="col-sm-3">
+            <a href="#">
+                <img class="thumbnail img-responsive" src="http://10.20.136.163/emoticon{{ photo.url }}">
+            </a>
+        </div>
+        {% endfor %}
+    </div><!--container-->
+</div><!--container-->
+{% endblock %}

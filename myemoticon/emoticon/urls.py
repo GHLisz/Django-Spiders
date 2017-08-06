@@ -3,5 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^$', views.ArticleListView.as_view(), name='article_list'),
+    url(r'^article_list$', views.ArticleListView.as_view(), name='article_list'),
+    url(r'^photo_list$', views.StandalonePhotoListView.as_view(), name='photo_list'),
+    url(r'^article/(?P<article_old_id>\d+)/$', views.article_detail, name='article_detail'),
 ]

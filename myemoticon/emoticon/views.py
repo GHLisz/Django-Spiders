@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Article, Photo
@@ -15,22 +15,16 @@ class ArticleListView(ListView):
 class StandalonePhotoListView(ListView):
     queryset = Photo.objects.filter(article_id__isnull=True)
     context_object_name = 'standalone_photos'
-    paginate_by = 50
-    template_name = ''
+    paginate_by = 48
+    template_name = 'emoticon/standalone_photo_list.html'
 
 
-def article_list(request):
-    object_list = Article.objects.all()
-    paginator = Paginator(object_list, 10)
-    page = request.GET.get('page')
+def article_detail(request, article_old_id):
+    article = get_object_or_404(Article, old_id=article_old_id)
+    photos = Photo.objects.filter(article=article)
 
-    try:
-        articles = paginator.page(page)
-    except PageNotAnInteger:
-        articles = paginator.page(1)
-    except EmptyPage:
-        articles = paginator.page(paginator.num_pages)
+    return render(request, 'emoticon/article_detail.html', {'article': article,
+                                                            'photos': photos})
 
-    return render(request, 'emoticon/article_list.html', {
-        'articles': articles,
-    })
+
+

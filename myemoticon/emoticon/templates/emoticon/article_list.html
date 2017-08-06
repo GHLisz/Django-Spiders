@@ -2,23 +2,23 @@
 
 {% load paginate_tag %}
 
-{% block title %}My Blog{% endblock %}
+{% block title %}套图 - 第{{ page_obj.number }}页{% endblock %}
 
 {% block content %}
-<div class="container col-sm-12">
-    {% for article in articles %}
-    <div class="container col-sm-6 col-lg-offset-3 list-group-item">
-        <div class="col-sm-9 header-bar" style="font-size: large">{{ article.title }}</div>
-        <div class="col-sm-3 header-bar" style="font-size: large">{{ article.date }}</div>
-        {% for photos in article.first_4_photo %}
-        <div class="col-sm-3">
-            <a href="#">
-                <img class="thumbnail img-responsive" src="http://10.20.136.163/emoticon{{ photos }}">
-            </a>
-        </div>
+    <div class="container col-sm-12">
+        {% for article in articles %}
+            <div class="container col-sm-6 col-lg-offset-3 list-group-item">
+                <a href="{% url 'emoticon:article_detail' article_old_id=article.old_id  %}">
+                    <div class="col-sm-9 header-bar" style="font-size: large">{{ article.title }}</div>
+                    <div class="col-sm-3 header-bar" style="font-size: large">{{ article.date }}</div>
+                    {% for photo in article.first_4_photo %}
+                        <div class="col-sm-3">
+                            <img class="thumbnail img-responsive" src="http://10.20.136.163/emoticon{{ photo }}">
+                        </div>
+                    {% endfor %}
+                </a>
+            </div><!--container-->
         {% endfor %}
     </div><!--container-->
-    {% endfor %}
-</div><!--container-->
     {% paginate %}
 {% endblock %}

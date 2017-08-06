@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>base</title>
+    <title>{% block title %}{% endblock %}</title>>
     <meta charset="UTF-8">
     <!-- 新 Bootstrap 核心 CSS 文件 -->
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
@@ -21,8 +21,8 @@
         </div>
         <div>
             <ul class="nav navbar-nav navbar-left">
-                <li><a href="#">套图</a></li>
-                <li><a href="#">表情</a></li>
+                <li><a href="/emoticon/article_list">套图</a></li>
+                <li><a href="/emoticon/photo_list">表情</a></li>
             </ul>
 
             <form class="navbar-form navbar-left">
