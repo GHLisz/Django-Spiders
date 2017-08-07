@@ -27,4 +27,9 @@ def article_detail(request, article_old_id):
                                                             'photos': photos})
 
 
+def photo_detail(request, photo_old_id):
+    photo = get_object_or_404(Photo, old_id=photo_old_id)
+    tags = photo.tags.all()
 
+    return render(request, 'emoticon/photo_detail.html', {'photo': photo,
+                                                          'tags': tags})
