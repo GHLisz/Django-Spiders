@@ -1,0 +1,8 @@
+<div class="container text-left">
+    tags:
+    {% for tag in tags %}
+        <a href="{{ tag }}">
+            <span class="label label-info">{{ tag }}</span>
+        </a>
+    {% endfor %}
+</div>

@@ -3,18 +3,18 @@
 {% block title %}{{ photo.title }}{% endblock %}
 
 {% block content %}
-<div class="container col-sm-12">
-    <div class="container col-sm-6 col-lg-offset-3 list-group-item">
-        <div class="col-sm-12 header-bar" style="font-size: large">{{ photo.title }}</div>
-        <div class="col-sm-12 header-bar" style="font-size: large">{{ photo.date }}</div>
-        <div class="col-sm-3">
+    <div class="container col-sm-12">
+        <div class="container col-sm-6 col-lg-offset-3 list-group-item">
+            <div class="col-sm-12 header-bar" style="font-size: large">{{ photo.title }}</div>
+            <div class="col-sm-12 header-bar" style="font-size: large">{{ photo.date }}</div>
             <a href="#">
                 <img class="thumbnail img-responsive" src="http://10.20.136.163/emoticon{{ photo.url }}">
             </a>
-        </div>
-        {% for tag in tags %}
-            {{ tag }}
-        {% endfor %}
+        </div><!--container-->
     </div><!--container-->
-</div><!--container-->
+    <div class="container col-sm-12">
+        <div class="container col-sm-6 col-lg-offset-3 list-group-item">
+            {% include 'display_tags.html' with tags=tags %}
+        </div>
+    </div>
 {% endblock %}

@@ -3,17 +3,22 @@
 {% block title %}{{ article.title }}{% endblock %}
 
 {% block content %}
-<div class="container col-sm-12">
-    <div class="container col-sm-6 col-lg-offset-3 list-group-item">
-        <div class="col-sm-12 header-bar" style="font-size: large">{{ article.title }}</div>
-        <div class="col-sm-12 header-bar" style="font-size: large">{{ article.date }}</div>
-        {% for photo in photos %}
-        <div class="col-sm-3">
-            <a href="{% url 'emoticon:photo_detail' photo_old_id=photo.old_id %}">
-                <img class="thumbnail img-responsive" src="http://10.20.136.163/emoticon{{ photo.url }}">
-            </a>
-        </div>
-        {% endfor %}
+    <div class="container col-sm-12">
+        <div class="container col-sm-6 col-lg-offset-3 list-group-item">
+            <div class="col-sm-12 header-bar" style="font-size: large">{{ article.title }}</div>
+            <div class="col-sm-12 header-bar" style="font-size: large">{{ article.date }}</div>
+            {% for photo in photos %}
+                <div class="col-sm-3">
+                    <a href="{% url 'emoticon:photo_detail' photo_old_id=photo.old_id %}">
+                        <img class="thumbnail img-responsive" src="http://10.20.136.163/emoticon{{ photo.url }}">
+                    </a>
+                </div>
+            {% endfor %}
+        </div><!--container-->
     </div><!--container-->
-</div><!--container-->
+    <div class="container col-sm-12">
+        <div class="container col-sm-6 col-lg-offset-3 list-group-item">
+            {% include 'display_tags.html' with tags=tags %}
+        </div>
+    </div>
 {% endblock %}
