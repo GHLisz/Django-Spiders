@@ -17,4 +17,13 @@
             {% include 'display_tags.html' with tags=tags %}
         </div>
     </div>
+    <div class="container col-sm-6 col-lg-offset-3 list-group-item">
+        {% for photo in similar_photos %}
+            <div class="col-xs-6 col-sm-3" style="height: 200px; width: 200px">
+                <a href="{% url 'emoticon:photo_detail' photo_old_id=photo.old_id %}">
+                    <img class="img-responsive" src="http://10.20.136.163/emoticon{{ photo.url }}">
+                </a>
+            </div>
+        {% endfor %}
+    </div><!--container-->
 {% endblock %}

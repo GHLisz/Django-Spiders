@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView
+from django.db.models import Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Article, Photo
 
@@ -34,5 +35,10 @@ def photo_detail(request, photo_old_id):
     photo = get_object_or_404(Photo, old_id=photo_old_id)
     tags = photo.tags.all()
 
+    photo_tags_ids = photo.tags.values_list('id', flat=True)
+    similar_photos = Photo.objects.filter(tags__in=photo_tags_ids).exclude(id=photo.id)
+    similar_photos = similar_photos.annotate(same_tags=Count('tags')).order_by('-same_tags', '-date')[:8]
+
     return render(request, 'emoticon/photo_detail.html', {'photo': photo,
-                                                          'tags': tags})
+                                                          'tags': tags,
+                                                          'similar_photos': similar_photos})
