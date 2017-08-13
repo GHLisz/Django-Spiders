@@ -3,6 +3,7 @@ from django.views.generic import ListView
 from django.db.models import Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Article, Photo
+from taggit.managers import TaggableManager
 
 
 # Create your views here.
@@ -18,6 +19,15 @@ class StandalonePhotoListView(ListView):
     context_object_name = 'standalone_photos'
     paginate_by = 48
     template_name = 'emoticon/standalone_photo_list.html'
+
+
+class TagListView(ListView):
+    context_object_name = 'standalone_photos'
+    paginate_by = 48
+    template_name = 'emoticon/standalone_photo_list.html'
+
+    def get_queryset(self):
+        return Photo.objects.filter(tags__slug=self.kwargs['tag_slug'])
 
 
 def article_detail(request, article_old_id):

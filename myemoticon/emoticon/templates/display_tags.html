@@ -1,7 +1,7 @@
 <div class="container text-left">
     tags:
     {% for tag in tags %}
-        <a href="{{ tag }}">
+        <a href="{% url 'emoticon:tag_list' tag_slug=tag.slug %}">
             <span class="label label-info">{{ tag }}</span>
         </a>
     {% endfor %}
