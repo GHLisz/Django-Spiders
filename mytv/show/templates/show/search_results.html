@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}首页{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for foo in name_hits %}
+                {{ foo }}<br>
+            {% endfor %}
+        </div>
+
+    </div>
+{% endblock %}
