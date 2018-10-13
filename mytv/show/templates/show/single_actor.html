@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}首页{% endblock %}
+{% block title %}Actor: {{ actor }}{% endblock %}
 {% block content %}
     <div class="row">
         <div class="col-md-12">
@@ -13,7 +13,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for show in name_hits %}
+                {% for show in shows %}
                     <tr>
                         <th scope="row">{{ show.show_id }}</th>
                         <td><a href="{% url "single_show" show.show_id %}" target="_blank">{{ show.name }}</a></td>
@@ -24,5 +24,6 @@
                 </tbody>
             </table>
         </div>
+
     </div>
 {% endblock %}

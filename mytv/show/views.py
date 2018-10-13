@@ -1,18 +1,44 @@
 import datetime
 import json
 import random
-from urllib.parse import urlparse
-from django.shortcuts import render
+
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.conf import settings
 from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import Show
-from django.conf import settings
 
 
 # Create your views here.
 def index(request):
     return render(request, 'index.html')
+
+
+def single_show(request, show_id):
+    show = get_object_or_404(Show, show_id=show_id)
+    fields = [f.attname for f in Show._meta.get_fields()]
+    details = [(f, getattr(show, f, None)) for f in fields]
+
+    old_video_path = show.video.split('//')[-1].split('/')[-1]
+    new_video_url = settings.VIDEO_CACHE_HTTP + '/'.join(list(old_video_path[:2].lower())) + '/' + old_video_path
+
+    return render(request, 'show/single_show.html', {'show': show, 'video': new_video_url, 'details': details})
+
+
+def single_actor(request, actor_name):
+    shows = Show.objects.filter(actor__iexact=actor_name)
+    return render(request, 'show/single_actor.html', {'shows': shows, 'actor': actor_name})
+
+
+def show_list(request):
+    res = Show.objects.all()
+    paginator = Paginator(res, 20)
+
+    page = request.GET.get('page')
+    shows = paginator.get_page(page)
+    return render(request, 'show/show_list.html', {'shows': shows})
 
 
 def search_name(request):
@@ -70,5 +96,6 @@ def down_video_job(request):
                 print('passed', s)
                 s.video_cached = True
                 s.save()
+        return JsonResponse({'success': True})
 
-    return JsonResponse({'success': True})
+    return JsonResponse({'success': False})

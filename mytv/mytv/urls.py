@@ -20,6 +20,9 @@ from show import views as show_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/down_video_job/', show_views.down_video_job, name='down_video_job'),
+    path('show/<int:show_id>', show_views.single_show, name='single_show'),
+    path('actor/<str:actor_name>', show_views.single_actor, name='single_actor'),
+    path('list/', show_views.show_list, name='show_list'),
     path('search/', show_views.search_name, name='search_name'),
     path('', show_views.index, name='index'),
 ]
