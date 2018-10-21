@@ -1,5 +1,7 @@
-from django.db import models
 from datetime import datetime
+
+from django.conf import settings
+from django.db import models
 
 
 # Create your models here.
@@ -27,3 +29,15 @@ class Show(models.Model):
 
     def __str__(self):
         return f'Show(url="{self.url}", name="{self.name}", video="{self.video}")'
+
+    @property
+    def video_cache_url(self):
+        old_video_path = self.video.split('//')[-1].split('/')[-1]
+        new_video_url = settings.VIDEO_CACHE_HTTP + '/'.join(list(old_video_path[:2].lower())) + '/' + old_video_path
+        return new_video_url
+
+    @property
+    def image_cache_url(self):
+        old_image_path = self.image.split('//')[-1].split('/')[-1]
+        new_image_url = settings.IMAGE_CACHE_HTTP + '/'.join(list(old_image_path[:2].lower())) + '/' + old_image_path
+        return new_image_url
