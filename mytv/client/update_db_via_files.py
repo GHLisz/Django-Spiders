@@ -11,12 +11,7 @@ django.setup()
 # script starts
 import datetime
 from show.models import Show
-
-VIDEO_CACHE_PATH = r''
-VIDEO_CACHE_PREFIX = ''
-
-IMAGE_CACHE_PATH = r''
-IMAGE_CACHE_PREFIX = ''
+from django.conf import settings
 
 
 def get_files_recursively(root_dir):
@@ -26,29 +21,34 @@ def get_files_recursively(root_dir):
             yield os.path.join(root, file)
 
 
-def main():
+def main_update_db_from_scratch():
     clear_all_cached_flag()
 
-    for fn in get_files_recursively(VIDEO_CACHE_PATH):
-        cache_link = VIDEO_CACHE_PREFIX + os.path.basename(fn)
+    for fn in get_files_recursively(settings.VIDEO_CACHE):
+        cache_link = settings.VIDEO_CDN_ORIGINAL + os.path.basename(fn)
         for s in Show.objects.filter(video=cache_link):
             print(s)
             s.video_cached = True
             s.save()
 
-    for fn in get_files_recursively(IMAGE_CACHE_PATH):
-        cache_link = IMAGE_CACHE_PREFIX + os.path.basename(fn)
+    for fn in get_files_recursively(settings.IMAGE_CACHE):
+        cache_link = settings.IMAGE_CDN_ORIGINAL + os.path.basename(fn)
         for s in Show.objects.filter(image=cache_link):
             print(s)
             s.image_cached = True
             s.save()
 
 
-# def peek_data():
-#     cached_shows = Show.objects.filter(video_cached=False)
-#     # print(len(cached_shows))
-#     for s in cached_shows:
-#         print(s.show_id)
+def main_update_db_incremental():
+    for s in Show.objects.filter(video_cached=False):
+        if os.path.exists(s.video_cache_path):
+            s.video_cached = True
+            s.save()
+
+    for s in Show.objects.filter(image_cached=False):
+        if os.path.exists(s.image_cache_path):
+            s.video_cached = True
+            s.save()
 
 
 def clear_all_cached_flag():
@@ -58,5 +58,22 @@ def clear_all_cached_flag():
     print(r)
 
 
+def diff_tools():
+    with open('d:/tmp/tvtmp.txt', 'w', encoding='utf8') as f:
+        for s in Show.objects.all():
+            f.writelines(str(s.show_id) + '\n')
+
+    tvset = set(line.strip() for line in open('d:/tmp/tv.txt', encoding='utf8'))
+    tvtmpset = set(line.strip() for line in open('d:/tmp/tvtmp.txt', encoding='utf8'))
+
+    print('tv added: ', tvset - tvtmpset)
+    print(*sorted(map(int, tvset - tvtmpset)), sep='\n')
+    print('tvtmp added: ', tvtmpset - tvset)
+
+    with open('d:/tmp/diff.txt', 'w', encoding='utf8') as f:
+        for s in tvset - tvtmpset:
+            f.writelines(str(s) + '\n')
+
+
 if __name__ == '__main__':
-    main()
+    main_update_db_incremental()

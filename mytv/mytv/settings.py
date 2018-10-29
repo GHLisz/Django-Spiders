@@ -122,12 +122,14 @@ USE_TZ = False
 STATIC_URL = '/static/'
 
 # site specific settings
+# cdn is where the source public server locates
+# cache is where your private server locates
+CDN_HOST = ''
+
 VIDEO_CDN = ''
-VIDEO_CDN_ORIGINAL = ''
 VIDEO_CACHE = r'' + '\\'
 VIDEO_CACHE_HTTP = ''
 
 IMAGE_CDN = ''
-IMAGE_CDN_ORIGINAL = ''
 IMAGE_CACHE = r'' + '\\'
 IMAGE_CACHE_HTTP = ''

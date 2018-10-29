@@ -1,13 +1,16 @@
 import unittest
+import re
+from bs4 import BeautifulSoup
+from datetime import datetime
 from spiders.utils import get_soup_from_url
 from show.models import Show
 
 
 class WebShow:
-    def __init__(self, show_id):
+    def __init__(self, show_id, soup=None):
         self.show_id = show_id
         self._url = f'video-{self.show_id}.htm'
-        self._soup = None
+        self._soup = soup
         self._data = None
 
     def soup(self):
@@ -60,5 +63,27 @@ class WebShow:
             return False
 
         show, created = Show.objects.update_or_create(show_id=self.show_id, defaults=data)
-        print('created: ', created)
+        print(datetime.now(), ' created: ', created)
         return True
+
+    def get_show_id_list(self):
+        soup = self.soup()
+        shows = soup.select('div.caption.title > h5 > a')
+        shows = [s.get('href') for s in shows]
+        shows = [re.findall(r'\b\d+\b', s)[-1] for s in shows]
+        return [int(s) for s in shows]
+
+
+class WebShowTestCase(unittest.TestCase):
+    fn = r""
+    soup = BeautifulSoup(open(fn, encoding='utf8'), 'html5lib')
+
+    def test_get_show_id_list(self):
+        ws = WebShow(show_id=123, soup=self.soup)
+        lis = ws.get_show_id_list()
+        print(*lis, sep='\n')
+        print(len(lis))
+
+
+if __name__ == '__main__':
+    unittest.main()

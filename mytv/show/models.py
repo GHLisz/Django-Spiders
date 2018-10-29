@@ -31,13 +31,49 @@ class Show(models.Model):
         return f'Show(url="{self.url}", name="{self.name}", video="{self.video}")'
 
     @property
+    def video_basesname(self):
+        return self.video.split('//')[-1].split('/')[-1]
+
+    @property
+    def video_cdn_url(self):
+        video = self.video_basesname
+        return settings.VIDEO_CDN + video
+
+    @property
     def video_cache_url(self):
-        old_video_path = self.video.split('//')[-1].split('/')[-1]
-        new_video_url = settings.VIDEO_CACHE_HTTP + '/'.join(list(old_video_path[:2].lower())) + '/' + old_video_path
-        return new_video_url
+        video = self.video_basesname
+        return settings.VIDEO_CACHE_HTTP + '/'.join(list(video[:2].lower())) + '/' + video
+
+    @property
+    def video_cache_path(self):
+        video = self.video_basesname
+        return settings.VIDEO_CACHE + '\\'.join(list(video[:2].lower())) + '\\' + video
+
+    @property
+    def image_basename(self):
+        return self.image.split('//')[-1].split('/')[-1]
+
+    @property
+    def image_cdn_url(self):
+        image = self.image_basename
+        return settings.IMAGE_CDN + image
 
     @property
     def image_cache_url(self):
-        old_image_path = self.image.split('//')[-1].split('/')[-1]
-        new_image_url = settings.IMAGE_CACHE_HTTP + '/'.join(list(old_image_path[:2].lower())) + '/' + old_image_path
-        return new_image_url
+        image = self.image_basename
+        return settings.IMAGE_CACHE_HTTP + '/'.join(list(image[:2].lower())) + '/' + image
+
+    @property
+    def image_cache_path(self):
+        image = self.image_basename
+        return settings.IMAGE_CACHE + '\\'.join(list(image[:2].lower())) + '\\' + image
+
+    @classmethod
+    def get_object_from_any_video(cls, video_str):
+        basename = video_str.replace('\\', '/').split('/')[-1]
+        return cls.objects.filter(video__icontains=basename)
+
+    @classmethod
+    def get_object_from_any_image(cls, image_str):
+        basename = image_str.replace('\\', '/').split('/')[-1]
+        return cls.objects.filter(image__icontains=basename)

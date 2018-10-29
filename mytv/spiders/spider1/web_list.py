@@ -6,10 +6,10 @@ from .web_show import WebShow
 
 
 class WebList:
-    def __init__(self, page_num):
+    def __init__(self, page_num, soup=None):
         self.page_num = page_num
         self._url = f'list-{self.page_num}.htm'
-        self._soup = None
+        self._soup = soup
         self._data = None
 
     @staticmethod
