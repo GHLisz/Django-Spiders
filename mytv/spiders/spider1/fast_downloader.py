@@ -5,8 +5,9 @@
 import os
 import time
 import timeit
+import itertools
 from datetime import datetime
-from multiprocessing.pool import ThreadPool
+from multiprocessing.pool import ThreadPool, Pool
 
 import requests
 from bs4 import BeautifulSoup
@@ -108,15 +109,17 @@ class ShowUtils:
     def down_all_pages_of_show(show_num_list):
         ShowUtils.down_pages_of_show(show_num_list)
 
+        prev_deleted = None
         while True:
             deleted = StandaloneUtils.clean_false_files(LOCAL_PATH_SHOW)
-            if not deleted:
+            if not deleted or deleted == prev_deleted:
                 break
             ShowUtils.down_pages_of_show(list(deleted))
+            prev_deleted = deleted
 
     @staticmethod
     def get_show_id_list_of_a_file(fn):
-        print(f'get_show_id_list_of_a_file: {fn}')
+        print(datetime.now(), f'get_show_id_list_of_a_file: {fn}')
         fake_id = 1
         soup = BeautifulSoup(open(fn, encoding='utf8'), 'html5lib')
         web_list_obj = WebList(page_num=fake_id, soup=soup)
@@ -124,13 +127,14 @@ class ShowUtils:
 
     @staticmethod
     def get_all_shows(file_path):
-        shows_in_files = []
-        for fn in StandaloneUtils.get_files_recursively(file_path):
-            shows_in_files.extend(ShowUtils.get_show_id_list_of_a_file(fn))
+        file_list = list(StandaloneUtils.get_files_recursively(file_path))
+        with Pool() as p:
+            shows_in_files = p.map(ShowUtils.get_show_id_list_of_a_file, file_list)
+        shows_in_files = list(set(itertools.chain.from_iterable(shows_in_files)))
 
-        # file_list = list(StandaloneUtils.get_files_recursively(file_path))
-        # with ThreadPool(200) as p:
-        #     shows_in_files = p.map(ShowUtils.get_show_id_list_of_a_file, file_list)
+        with open('d:/get_all_shows.txt', 'w', encoding='utf8') as f:
+            for s in shows_in_files:
+                f.writelines(str(s) + '\n')
 
         shows_in_db = (s.show_id for s in Show.objects.all())
         shows_not_in_db = set(shows_in_files) - set(shows_in_db)
@@ -138,12 +142,17 @@ class ShowUtils:
         ShowUtils.down_all_pages_of_show(list(shows_not_in_db))
 
     @staticmethod
+    def save_a_show(fn):
+        show_id = os.path.splitext(os.path.basename(fn))[0]
+        soup = BeautifulSoup(open(fn, encoding='utf8'), 'lxml')
+        show = WebShow(show_id=show_id, soup=soup)
+        show.save()
+
+    @staticmethod
     def save_all_shows():
-        for fn in StandaloneUtils.get_files_recursively(LOCAL_PATH_SHOW):
-            show_id = os.path.splitext(os.path.basename(fn))[0]
-            soup = BeautifulSoup(open(fn, encoding='utf8'), 'html5lib')
-            show = WebShow(show_id=show_id, soup=soup)
-            show.save()
+        file_list = list(StandaloneUtils.get_files_recursively(LOCAL_PATH_SHOW))
+        with Pool() as p:
+            p.map(ShowUtils.save_a_show, file_list)
 
 
 def down_all():

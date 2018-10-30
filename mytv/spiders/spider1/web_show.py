@@ -55,7 +55,7 @@ class WebShow:
 
     def save(self, update=False):
         if Show.objects.filter(show_id=self.show_id).exists() and not update:
-            print('show exists, skip')
+            print(datetime.now(), 'show exists, skip')
             return False
 
         data = self.data()
