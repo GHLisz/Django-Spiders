@@ -87,7 +87,7 @@ def down_video_job(request):
                 print('passed', s)
                 s.video_cached = True
                 s.save()
-        return JsonResponse({'success': True})
+        return JsonResponse({'success': True, 'pass_count': len(passed_jobs)})
 
     return JsonResponse({'success': False})
 
@@ -134,6 +134,6 @@ def down_image_job(request):
                 s.image_cached = True
                 s.save()
 
-        return JsonResponse({'success': True})
+        return JsonResponse({'success': True, 'pass_count': len(passed_jobs)})
 
     return JsonResponse({'success': False})

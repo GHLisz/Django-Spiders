@@ -63,17 +63,34 @@ def diff_tools():
         for s in Show.objects.all():
             f.writelines(str(s.show_id) + '\n')
 
-    tvset = set(line.strip() for line in open('d:/tmp/tv.txt', encoding='utf8'))
-    tvtmpset = set(line.strip() for line in open('d:/tmp/tvtmp.txt', encoding='utf8'))
+    # tvset = set(line.strip() for line in open('d:/tmp/tv.txt', encoding='utf8'))
+    # tvtmpset = set(line.strip() for line in open('d:/tmp/tvtmp.txt', encoding='utf8'))
+    #
+    # print('tv added: ', tvset - tvtmpset)
+    # print(*sorted(map(int, tvset - tvtmpset)), sep='\n')
+    # print('tvtmp added: ', tvtmpset - tvset)
+    #
+    # with open('d:/tmp/diff.txt', 'w', encoding='utf8') as f:
+    #     for s in tvset - tvtmpset:
+    #         f.writelines(str(s) + '\n')
 
-    print('tv added: ', tvset - tvtmpset)
-    print(*sorted(map(int, tvset - tvtmpset)), sep='\n')
-    print('tvtmp added: ', tvtmpset - tvset)
 
-    with open('d:/tmp/diff.txt', 'w', encoding='utf8') as f:
-        for s in tvset - tvtmpset:
-            f.writelines(str(s) + '\n')
+def find_cache_file():
+    cached = 0
+    count = 0
+    with open('d:/tmp/diff.txt', encoding='utf8') as f:
+        for s in f.readlines():
+            sid = int(s)
+            show = Show.objects.get(show_id=sid)
+            cache_file = show.video_cache_path
+            count += 1
+            if os.path.exists(cache_file):
+                print(show)
+                print(cache_file)
+                cached += 1
+    print(cached)
+    print(count)
 
 
 if __name__ == '__main__':
-    main_update_db_incremental()
+    diff_tools()

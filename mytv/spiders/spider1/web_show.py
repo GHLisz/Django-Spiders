@@ -72,18 +72,3 @@ class WebShow:
         shows = [s.get('href') for s in shows]
         shows = [re.findall(r'\b\d+\b', s)[-1] for s in shows]
         return [int(s) for s in shows]
-
-
-class WebShowTestCase(unittest.TestCase):
-    fn = r""
-    soup = BeautifulSoup(open(fn, encoding='utf8'), 'html5lib')
-
-    def test_get_show_id_list(self):
-        ws = WebShow(show_id=123, soup=self.soup)
-        lis = ws.get_show_id_list()
-        print(*lis, sep='\n')
-        print(len(lis))
-
-
-if __name__ == '__main__':
-    unittest.main()

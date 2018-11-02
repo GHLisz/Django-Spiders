@@ -151,7 +151,7 @@ class ShowUtils:
     @staticmethod
     def save_all_shows():
         file_list = list(StandaloneUtils.get_files_recursively(LOCAL_PATH_SHOW))
-        with Pool() as p:
+        with Pool(1) as p:
             p.map(ShowUtils.save_a_show, file_list)
 
 
