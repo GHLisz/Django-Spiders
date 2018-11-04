@@ -31,6 +31,10 @@ class Show(models.Model):
         return f'Show(url="{self.url}", name="{self.name}", video="{self.video}")'
 
     @property
+    def actor_safe(self):
+        return self.actor if self.actor else 'NULL'
+
+    @property
     def video_basesname(self):
         return self.video.split('//')[-1].split('/')[-1]
 

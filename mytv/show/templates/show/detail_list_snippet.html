@@ -14,7 +14,7 @@
             <tr>
                 <th scope="row">{{ show.show_id }}</th>
                 <td><a href="{% url "single_show" show.show_id %}" target="_blank">{{ show.name }}</a></td>
-                <td><a href="{% url "single_actor" show.actor %}" target="_blank">{{ show.actor }}</a></td>
+                <td><a href="{% url "single_actor" show.actor_safe %}" target="_blank">{{ show.actor_safe }}</a></td>
                 <td>{{ show.duration }}</td>
                 <td><img src="{{ show.image_cache_url }}" height="42" width="42"></td>
             </tr>
