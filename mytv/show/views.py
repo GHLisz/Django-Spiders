@@ -49,44 +49,20 @@ def search_name(request):
 @csrf_exempt
 def down_video_job(request):
     if request.method == 'GET':
-        bulk_size = 20
-        time_threshold = datetime.datetime.now() - datetime.timedelta(days=2)
-        shows_to_down = Show.objects.filter(video_cached=False,
-                                            video_update_time__lt=time_threshold).all()
-        try:
-            shows_to_down = random.sample(list(shows_to_down), bulk_size)  # avoid repeated down
-        except ValueError:  # Sample larger than population or is negative
-            print('well, there are little to down')
+        payload = Show.get_down_video_job()
+        if not payload:
+            print('well, there are noting to down')
             return JsonResponse({'success': False})
-
-        print(*shows_to_down, sep='\n')
-
-        payload = []
-        for s in shows_to_down:
-            payload.append({'src': s.video_cdn_url, 'dst': s.video_cache_path})
-            s.video_update_time = datetime.datetime.now()
-            s.save()
         return JsonResponse({'success': True, 'jobs': payload})
 
     elif request.method == 'POST':
         data = json.loads(request.body)
+        print(data)
+
         failed_jobs = data['failed_jobs']
         passed_jobs = data['passed_jobs']
 
-        print(data)
-
-        for video in failed_jobs:
-            for s in Show.get_object_from_any_video(video):
-                print('failed', s)
-                s.video_update_time = datetime.datetime(2000, 1, 1)
-                s.video_cached = False
-                s.save()
-
-        for video in passed_jobs:
-            for s in Show.get_object_from_any_video(video):
-                print('passed', s)
-                s.video_cached = True
-                s.save()
+        Show.process_down_video_result(failed_jobs, passed_jobs)
         return JsonResponse({'success': True, 'pass_count': len(passed_jobs)})
 
     return JsonResponse({'success': False})
@@ -95,45 +71,20 @@ def down_video_job(request):
 @csrf_exempt
 def down_image_job(request):
     if request.method == 'GET':
-        bulk_size = 20
-        time_threshold = datetime.datetime.now() - datetime.timedelta(days=2)
-        shows_to_down = Show.objects.filter(image_cached=False,
-                                            image_update_time__lt=time_threshold).all()  # [:bulk_size]
-        try:
-            shows_to_down = random.sample(list(shows_to_down), bulk_size)  # avoid repeated down
-        except ValueError:  # Sample larger than population or is negative
-            print('well, there are little to down')
+        payload = Show.get_down_image_job()
+        if not payload:
+            print('well, there are noting to down')
             return JsonResponse({'success': False})
-
-        print(*shows_to_down, sep='\n')
-
-        payload = []
-        for s in shows_to_down:
-            payload.append({'src': s.image_cdn_url, 'dst': s.image_cache_path})
-            s.image_update_time = datetime.datetime.now()
-            s.save()
         return JsonResponse({'success': True, 'jobs': payload})
 
     elif request.method == 'POST':
         data = json.loads(request.body)
+        print(data)
+
         failed_jobs = data['failed_jobs']
         passed_jobs = data['passed_jobs']
 
-        print(data)
-
-        for image in failed_jobs:
-            for s in Show.get_object_from_any_image(image):
-                print('failed', s)
-                s.image_update_time = datetime.datetime(2000, 1, 1)
-                s.image_cached = False
-                s.save()
-
-        for image in passed_jobs:
-            for s in Show.get_object_from_any_image(image):
-                print('passed', s)
-                s.image_cached = True
-                s.save()
-
+        Show.process_down_image_result(failed_jobs, passed_jobs)
         return JsonResponse({'success': True, 'pass_count': len(passed_jobs)})
 
     return JsonResponse({'success': False})

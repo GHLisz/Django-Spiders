@@ -61,17 +61,16 @@ def backup_db():
 def restore_db_incrementally():
     cb = CryptBox(backup_file_name)
     instance_list_in_file = cb.decoded_obj()
-    pprint(instance_list_in_file)
+    # pprint(instance_list_in_file)
 
     shows_in_db = set(s.show_id for s in Show.objects.all())
     shows_in_file = set(s['show_id'] for s in instance_list_in_file)
     shows_not_in_db = shows_in_file - shows_in_db
 
-    for it in instance_list_in_file:
-        if it['show_id'] in shows_not_in_db:
-            show = Show(**{k: it[k] for k in KEY_ATTRS})
-            show.save()
-            pprint(show.__dict__)
+    show_objs_to_persist = [Show(**{k: it[k] for k in KEY_ATTRS})
+                            for it in instance_list_in_file
+                            if it['show_id'] in shows_not_in_db]
+    Show.objects.bulk_create(show_objs_to_persist)
 
 
 def db_bk_diff_helper(sbk):
@@ -97,36 +96,8 @@ def db_bk_diff():
         p.map(db_bk_diff_helper, instance_list_in_file)
 
 
-def correct_faults():
-    cb = CryptBox((os.path.join(BASE_DIR, 'bk.db')))
-    cb1 = CryptBox((os.path.join(BASE_DIR, 'bk1.db')))
-    cb_dic = {v['show_id']: v for v in cb.decoded_obj()}
-    cb1_dic = {v['show_id']: v for v in cb1.decoded_obj()}
-
-    for s in Show.objects.filter(actor=''):
-        pprint(s.__dict__)
-        actor = cb_dic.get(s.show_id, {}).get('actor', '') or cb1_dic.get(s.show_id, {}).get('actor', '')
-        print('---------------')
-        if actor:
-            print(actor)
-            s.actor = actor
-            s.save()
-        print('###############')
-
-    print('$$$$$$$$$$$$$$')
-    for s in Show.objects.filter(name=''):
-        pprint(s.__dict__)
-        name = cb_dic.get(s.show_id, {}).get('name', '') or cb1_dic.get(s.show_id, {}).get('name', '')
-        print('---------------')
-        if name:
-            print(name)
-            s.name = name
-            s.save()
-        print('###############')
-
-
 if __name__ == '__main__':
     start = datetime.now()
-    backup_db()
+    restore_db_incrementally()
     print('time elapsed: ', datetime.now() - start)
     pass

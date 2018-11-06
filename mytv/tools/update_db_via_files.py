@@ -25,18 +25,18 @@ def main_update_db_from_scratch():
     clear_all_cached_flag()
 
     for fn in get_files_recursively(settings.VIDEO_CACHE):
-        cache_link = settings.VIDEO_CDN_ORIGINAL + os.path.basename(fn)
-        for s in Show.objects.filter(video=cache_link):
-            print(s)
-            s.video_cached = True
-            s.save()
+        for s in Show.objects.filter(video__icontains=os.path.basename(fn)):
+            if s.video_cache_path == fn:
+                print(s)
+                s.video_cached = True
+                s.save()
 
     for fn in get_files_recursively(settings.IMAGE_CACHE):
-        cache_link = settings.IMAGE_CDN_ORIGINAL + os.path.basename(fn)
-        for s in Show.objects.filter(image=cache_link):
-            print(s)
-            s.image_cached = True
-            s.save()
+        for s in Show.objects.filter(image__icontains=os.path.basename(fn)):
+            if s.image_cache_path == fn:
+                print(s)
+                s.image_cached = True
+                s.save()
 
 
 def main_update_db_incremental():
@@ -58,23 +58,6 @@ def clear_all_cached_flag():
     print(r)
 
 
-def diff_tools():
-    with open('d:/tmp/tvtmp.txt', 'w', encoding='utf8') as f:
-        for s in Show.objects.all():
-            f.writelines(str(s.show_id) + '\n')
-
-    # tvset = set(line.strip() for line in open('d:/tmp/tv.txt', encoding='utf8'))
-    # tvtmpset = set(line.strip() for line in open('d:/tmp/tvtmp.txt', encoding='utf8'))
-    #
-    # print('tv added: ', tvset - tvtmpset)
-    # print(*sorted(map(int, tvset - tvtmpset)), sep='\n')
-    # print('tvtmp added: ', tvtmpset - tvset)
-    #
-    # with open('d:/tmp/diff.txt', 'w', encoding='utf8') as f:
-    #     for s in tvset - tvtmpset:
-    #         f.writelines(str(s) + '\n')
-
-
 def find_cache_file():
     cached = 0
     count = 0
@@ -93,4 +76,6 @@ def find_cache_file():
 
 
 if __name__ == '__main__':
-    diff_tools()
+    start = datetime.datetime.now()
+    main_update_db_incremental()
+    print('time elapsed: ', datetime.datetime.now() - start)

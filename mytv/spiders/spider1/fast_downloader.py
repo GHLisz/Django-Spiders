@@ -2,20 +2,22 @@
 # It's meant to help exhausting this site,
 # by down all list pages at once to avoid missing items caused by site updating.
 
+import itertools
 import os
 import time
-import timeit
-import itertools
+import traceback
 from datetime import datetime
 from multiprocessing.pool import ThreadPool, Pool
 
 import requests
 from bs4 import BeautifulSoup
+from django.conf import settings
 
+from client.client import down_helper as video_down_helper
+from client.client2 import down_helper as image_down_helper
+from show.models import Show
 from .web_list import WebList
 from .web_show import WebShow
-from show.models import Show
-from django.conf import settings
 
 URL_HOST = settings.CDN_HOST
 LOCAL_PATH_LIST = r''
@@ -151,18 +153,60 @@ class ShowUtils:
     @staticmethod
     def save_all_shows():
         file_list = list(StandaloneUtils.get_files_recursively(LOCAL_PATH_SHOW))
+
+        shows_in_db = [s.show_id for s in Show.objects.all()]
+        shows_in_file = [int(os.path.splitext(os.path.basename(fn))[0]) for fn in file_list]
+        shows_to_save = set(shows_in_file) - set(shows_in_db)
+
+        shows_to_save_file_list = [p for sid, p in zip(shows_in_file, file_list) if sid in shows_to_save]
+
         with Pool(1) as p:
-            p.map(ShowUtils.save_a_show, file_list)
+            p.map(ShowUtils.save_a_show, shows_to_save_file_list)
+
+
+class ShowBinary:
+    @staticmethod
+    def down_video():
+        error_count = 0
+        while True:
+            try:
+                jobs = Show.get_down_video_job()
+                if not jobs:
+                    break
+                failed_jobs, passed_jobs = video_down_helper(jobs)
+                Show.process_down_video_result(failed_jobs, passed_jobs)
+            except Exception as e:
+                print(datetime.now())
+                error_count += 1
+                traceback.print_exc()
+                time.sleep(5 * error_count)
+
+    @staticmethod
+    def down_image():
+        error_count = 0
+        while True:
+            try:
+                jobs = Show.get_down_image_job()
+                if not jobs:
+                    break
+                failed_jobs, passed_jobs = image_down_helper(jobs)
+                Show.process_down_image_result(failed_jobs, passed_jobs)
+            except Exception as e:
+                print(datetime.now())
+                error_count += 1
+                traceback.print_exc()
+                time.sleep(5 * error_count)
 
 
 def down_all():
-    ListUtils.down_all_pages_of_list()
+    # ListUtils.down_all_pages_of_list()
 
-    ShowUtils.get_all_shows(LOCAL_PATH_LIST)
-    ShowUtils.save_all_shows()
+    # ShowUtils.get_all_shows(LOCAL_PATH_LIST)
+    # ShowUtils.save_all_shows()
     # save ids not in list but in shows
-    ShowUtils.get_all_shows(LOCAL_PATH_SHOW)
-    ShowUtils.save_all_shows()
+    # ShowUtils.get_all_shows(LOCAL_PATH_SHOW)
+    # ShowUtils.save_all_shows()
+    ShowBinary.down_video()
 
 
 if __name__ == '__main__':

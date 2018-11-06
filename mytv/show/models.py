@@ -1,4 +1,5 @@
-from datetime import datetime
+import random
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db import models
@@ -81,3 +82,71 @@ class Show(models.Model):
     def get_object_from_any_image(cls, image_str):
         basename = image_str.replace('\\', '/').split('/')[-1]
         return cls.objects.filter(image__icontains=basename)
+
+    @classmethod
+    def get_down_video_job(cls):
+        bulk_size = 20
+        time_threshold = datetime.now() - timedelta(days=2)
+        shows_to_down = cls.objects.filter(video_cached=False,
+                                           video_update_time__lt=time_threshold).all()
+        shows_to_down = list(shows_to_down)
+        if len(shows_to_down) > bulk_size:
+            shows_to_down = random.sample(shows_to_down, bulk_size)
+
+        print(*shows_to_down, sep='\n')
+
+        payload = []
+        for s in shows_to_down:
+            payload.append({'src': s.video_cdn_url, 'dst': s.video_cache_path})
+            s.video_update_time = datetime.now()
+            s.save()
+        return payload
+
+    @classmethod
+    def process_down_video_result(cls, failed_jobs, passed_jobs):
+        for video in failed_jobs:
+            for s in cls.get_object_from_any_video(video):
+                print('failed', s)
+                s.video_update_time = datetime(2000, 1, 1)
+                s.video_cached = False
+                s.save()
+
+        for video in passed_jobs:
+            for s in cls.get_object_from_any_video(video):
+                print('passed', s)
+                s.video_cached = True
+                s.save()
+
+    @classmethod
+    def get_down_image_job(cls):
+        bulk_size = 20
+        time_threshold = datetime.now() - timedelta(days=2)
+        shows_to_down = cls.objects.filter(image_cached=False,
+                                           image_update_time__lt=time_threshold).all()
+        shows_to_down = list(shows_to_down)
+        if len(shows_to_down) > bulk_size:
+            shows_to_down = random.sample(shows_to_down, bulk_size)
+
+        print(*shows_to_down, sep='\n')
+
+        payload = []
+        for s in shows_to_down:
+            payload.append({'src': s.image_cdn_url, 'dst': s.image_cache_path})
+            s.image_update_time = datetime.now()
+            s.save()
+        return payload
+
+    @classmethod
+    def process_down_image_result(cls, failed_jobs, passed_jobs):
+        for image in failed_jobs:
+            for s in Show.get_object_from_any_image(image):
+                print('failed', s)
+                s.image_update_time = datetime(2000, 1, 1)
+                s.image_cached = False
+                s.save()
+
+        for image in passed_jobs:
+            for s in Show.get_object_from_any_image(image):
+                print('passed', s)
+                s.image_cached = True
+                s.save()

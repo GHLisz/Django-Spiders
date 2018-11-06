@@ -29,7 +29,7 @@ def down_file(src, dst):
     name = src.split('/')[-1].split('.')[0]
     print(datetime.now(), name)
 
-    r = requests.get(src, stream=True, headers=headers, timeout=360)
+    r = requests.get(src, stream=True, headers=headers, timeout=36000)
     if r.status_code == 200:
         with open(dst, 'wb') as f:
             shutil.copyfileobj(r.raw, f)
@@ -38,6 +38,10 @@ def down_file(src, dst):
 def down_file_checked(src, dst, min_size_k):
     down_file(src, dst)
     target_file = dst
+
+    if not os.path.exists(target_file):
+        return False
+
     size_kb = os.stat(target_file).st_size / 1024
     if size_kb > min_size_k:
         return True
@@ -63,8 +67,7 @@ def report_job_status(failed_jobs, passed_jobs):
     print(datetime.now(), 'report resp is: ', resp.text)
 
 
-def main():
-    jobs = get_jobs()
+def down_helper(jobs):
     jobs_src = [j['src'] for j in jobs]
     jobs_local_name = [LOCAL_CACHE + src.split('/')[-1] for src in jobs_src]
     jobs_dst = [j['dst'] for j in jobs]
@@ -85,6 +88,12 @@ def main():
         else:
             failed_jobs.append(s)
             continue
+    return failed_jobs, passed_jobs
+
+
+def main():
+    jobs = get_jobs()
+    failed_jobs, passed_jobs = down_helper(jobs)
     report_job_status(failed_jobs, passed_jobs)
 
 
