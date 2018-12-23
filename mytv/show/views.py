@@ -43,7 +43,13 @@ def show_list(request):
 def search_name(request):
     keyword = request.GET.get('q', '')
     name_hits = Show.objects.filter(name__icontains=keyword)
-    return render(request, 'show/search_results.html', {'name_hits': name_hits})
+    video_hits = Show.objects.filter(video__icontains=keyword)
+    actor_hits = Show.objects.filter(actor__icontains=keyword)
+    all_hits = list(name_hits)
+    all_hits.extend(video_hits)
+    all_hits.extend(actor_hits)
+    all_hits = set(all_hits)
+    return render(request, 'show/search_results.html', {'name_hits': all_hits})
 
 
 @csrf_exempt

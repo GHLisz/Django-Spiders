@@ -26,10 +26,11 @@ def get_jobs():
 
 def down_file(src, dst):
     # print(f'saving {src} to {dst}')
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
     name = src.split('/')[-1].split('.')[0]
     print(datetime.now(), name)
 
-    r = requests.get(src, stream=True, headers=headers, timeout=36000)
+    r = requests.get(src, stream=True, headers=headers, timeout=1800)
     if r.status_code == 200:
         with open(dst, 'wb') as f:
             shutil.copyfileobj(r.raw, f)

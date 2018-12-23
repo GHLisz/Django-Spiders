@@ -33,7 +33,7 @@ class Show(models.Model):
 
     @property
     def actor_safe(self):
-        return self.actor if self.actor else 'NULL'
+        return self.actor.replace('/', '_') if self.actor else 'NULL'
 
     @property
     def video_basesname(self):

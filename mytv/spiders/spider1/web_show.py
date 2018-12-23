@@ -30,7 +30,11 @@ class WebShow:
         s_video_class = soup.select('meta[itemprop="class"]')[0].get('content')
         s_actor = soup.select('meta[itemprop="actor"]')[0].get('content')
         s_video = str(soup.select('meta[itemprop="video"]')[0].get('content'))
-        s_video = s_video[s_video.index('http'): s_video.index('.mp4') + 4]
+        try:
+            s_video = s_video[s_video.index('http'): s_video.index('.mp4') + 4]
+        except ValueError:
+            s_video = s_video[s_video.index('http'): s_video.index('.ps') + 4]
+            s_video = s_video.strip("”")
         s_duration = soup.select('meta[itemprop="duration"]')[0].get('content')
         s_upload_date = soup.select('meta[itemprop="uploadDate"]')[0].get('content')
         s_content_location = soup.select('meta[itemprop="contentLocation"]')[0].get('content')
@@ -54,6 +58,8 @@ class WebShow:
         return self._data
 
     def save(self, update=False):
+        print(self.data())
+
         if Show.objects.filter(show_id=self.show_id).exists() and not update:
             print(datetime.now(), 'show exists, skip')
             return False
@@ -72,3 +78,9 @@ class WebShow:
         shows = [s.get('href') for s in shows]
         shows = [re.findall(r'\b\d+\b', s)[-1] for s in shows]
         return [int(s) for s in shows]
+
+
+class WebShowTestCase(unittest.TestCase):
+    def test_data(self):
+        s = WebShow(292992)
+        print(s.data())

@@ -3,6 +3,11 @@
 {% block content %}
     <div class="row">
         <div class="col-md-12">
+            <style>
+                video::-webkit-media-controls-fullscreen-button {
+                    display: none;
+                }
+            </style>
             <video controls playsinline>
                 <source src="{{ show.video_cache_url }}" type="video/mp4">
                 Your browser does not support the video tag.

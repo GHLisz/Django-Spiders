@@ -26,10 +26,11 @@ def get_jobs():
 
 def down_file(src, dst):
     # print(f'saving {src} to {dst}')
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
     name = src.split('/')[-1].split('.')[0]
     print(datetime.now(), name)
 
-    r = requests.get(src, stream=True, headers=headers, timeout=36000)
+    r = requests.get(src, stream=True, headers=headers, timeout=1800)
     if r.status_code == 200:
         with open(dst, 'wb') as f:
             shutil.copyfileobj(r.raw, f)
@@ -68,9 +69,13 @@ def report_job_status(failed_jobs, passed_jobs):
 
 
 def down_helper(jobs):
-    jobs_src = [j['src'] for j in jobs]
+    unfinished_jobs = list(filter(lambda x: not os.path.exists(x['dst']), (j for j in jobs)))
+
+    jobs_src = [j['src'] for j in unfinished_jobs]
     jobs_local_name = [LOCAL_CACHE + src.split('/')[-1] for src in jobs_src]
-    jobs_dst = [j['dst'] for j in jobs]
+    jobs_dst = [j['dst'] for j in unfinished_jobs]
+
+    print('len of job: ', len(jobs_dst))
 
     # d_f = lambda s, d: down_file_repeat(s, d, 10, 5)
     # with ThreadPool(20) as p:
